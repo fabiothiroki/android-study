@@ -67,6 +67,7 @@ public class ForecastFragment extends Fragment {
         }
 
         return true;
+
     }
 
     @Override
