@@ -1,9 +1,11 @@
 package com.example.android.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -60,14 +62,20 @@ public class ForecastFragment extends Fragment {
 
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            FetchWeatherTask task = new FetchWeatherTask();
-            task.execute("94043");
+
+            updateWeather();
 
             return true;
         }
 
         return true;
+    }
 
+    @Override
+    public void onStart(){
+        super.onStart();
+
+        updateWeather();
     }
 
     @Override
@@ -75,11 +83,7 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-
-        FetchWeatherTask task = new FetchWeatherTask();
-        task.execute("94043");
-
-
+        updateWeather();
 
         mListWeekForecast = new ArrayList<String>();
         mForecastAdapter = new ArrayAdapter<String>(
@@ -95,12 +99,20 @@ public class ForecastFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getActivity(), DetailActivity.class);
-                intent.putExtra(Intent.EXTRA_TEXT,mForecastAdapter.getItem(i));
+                intent.putExtra(Intent.EXTRA_TEXT, mForecastAdapter.getItem(i));
                 startActivity(intent);
             }
         });
 
         return rootView;
+    }
+
+    private void updateWeather(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String zipCode = prefs.getString(getResources().getString(R.string.pref_location_key),getResources().getString(R.string.pref_location_default));
+
+        FetchWeatherTask task = new FetchWeatherTask();
+        task.execute(zipCode);
     }
 
     public class FetchWeatherTask extends AsyncTask<String, Integer, String[]>{
