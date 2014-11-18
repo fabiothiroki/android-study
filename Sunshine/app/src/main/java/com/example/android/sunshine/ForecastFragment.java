@@ -132,8 +132,10 @@ public class ForecastFragment extends Fragment {
             // Will contain the raw JSON response as a string.
             String forecastJsonStr = null;
 
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String units = prefs.getString(getResources().getString(R.string.pref_units_key),getResources().getString(R.string.pref_units_metric));
+
             String format = "json";
-            String units = "metric";
             String numDays = "7";
 
             try {
