@@ -68,6 +68,18 @@ public class ForecastFragment extends Fragment {
             return true;
         }
 
+        else if (id == R.id.action_map){
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String zipCode = prefs.getString(getResources().getString(R.string.pref_location_key),getResources().getString(R.string.pref_location_default));
+
+            String uri = "geo:0,0?q="+zipCode;
+
+            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+            startActivity(i);
+
+        }
+
         return true;
     }
 
