@@ -76,7 +76,10 @@ public class ForecastFragment extends Fragment {
             String uri = "geo:0,0?q="+zipCode;
 
             Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-            startActivity(i);
+
+            if (i.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivity(i);
+            }
 
         }
 
@@ -312,9 +315,12 @@ public class ForecastFragment extends Fragment {
         protected void onPostExecute(String[] strings) {
             super.onPostExecute(strings);
 
-            Log.e("<<",strings[0]);
-
-            mListWeekForecast = new ArrayList<String>(Arrays.asList(strings));
+            if (strings != null) {
+                mListWeekForecast = new ArrayList<String>(Arrays.asList(strings));
+            }
+            else{
+                mListWeekForecast = new ArrayList<String>();
+            }
 
             mForecastAdapter.clear();
 
