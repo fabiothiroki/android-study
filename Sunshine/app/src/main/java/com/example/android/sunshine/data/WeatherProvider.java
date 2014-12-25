@@ -4,6 +4,7 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.net.Uri;
 
 /**
@@ -42,17 +43,84 @@ public class WeatherProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        return false;
+        return true;
     }
 
     @Override
-    public Cursor query(Uri uri, String[] strings, String s, String[] strings2, String s2) {
-        return null;
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
+                        String sortOrder) {
+        // Here's the switch statement that, given a URI, will determine what kind of request it is,
+        // and query the database accordingly.
+        MatrixCursor matrixCursor;
+        switch (sUriMatcher.match(uri)) {
+            // "weather/*/*"
+            case WEATHER_WITH_LOCATION_AND_DATE:
+            {
+                matrixCursor = null;
+                break;
+            }
+            // "weather/*"
+            case WEATHER_WITH_LOCATION: {
+                matrixCursor = null;
+                break;
+            }
+            // "weather"
+            case WEATHER: {
+                /*retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.WeatherEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );*/
+
+                String[] columns = new String[] { "_id", "item", "description" };
+
+                matrixCursor= new MatrixCursor(projection);
+
+                break;
+            }
+            // "location/*"
+            case LOCATION_ID: {
+                matrixCursor = null;
+                break;
+            }
+            // "location"
+            case LOCATION: {
+                matrixCursor = null;
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        if (matrixCursor != null) {
+            matrixCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
+        return matrixCursor;
     }
 
     @Override
     public String getType(Uri uri) {
-        return null;
+
+        // Use the Uri Matcher to determine what kind of URI this is.
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case WEATHER_WITH_LOCATION_AND_DATE:
+                return WeatherContract.WeatherEntry.CONTENT_ITEM_TYPE;
+            case WEATHER_WITH_LOCATION:
+                return WeatherContract.WeatherEntry.CONTENT_TYPE;
+            case WEATHER:
+                return WeatherContract.WeatherEntry.CONTENT_TYPE;
+            case LOCATION:
+                return WeatherContract.LocationEntry.CONTENT_TYPE;
+            case LOCATION_ID:
+                return WeatherContract.LocationEntry.CONTENT_ITEM_TYPE;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
     }
 
     @Override
